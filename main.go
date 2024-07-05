@@ -69,6 +69,7 @@ func generateLinkHandler(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"secret": key.Secret(),
 		"url":    key.URL(),
+		"qrcode": buf.Bytes(),
 	})
 }
 
