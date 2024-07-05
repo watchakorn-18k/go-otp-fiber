@@ -1,4 +1,13 @@
 # Go OTP Fiber Application
+<div align="center">
+
+[api-version](https://github.com/watchakorn-18k/go-otp-fiber/tree/master)/[htmx-version](https://github.com/watchakorn-18k/go-otp-fiber/tree/show-html-version)
+
+<img src="docs/image.png" align="center"/>
+
+</div>
+
+<br>
 
 This project is a simple OTP (One Time Password) generation and verification service built using the Go programming language and the Fiber web framework. It uses TOTP (Time-based One-Time Password) for generating and verifying OTPs.
 
@@ -22,6 +31,7 @@ This project is a simple OTP (One Time Password) generation and verification ser
     ```sh
     git clone https://github.com/watchakorn-18k/go-otp-fiber
     cd go-otp-fiber
+    git switch show-html-version
     ```
 
 2. Install dependencies:
@@ -41,6 +51,7 @@ This project is a simple OTP (One Time Password) generation and verification ser
     ```
 
 2. The server will start on port `3000`.
+3. Navigate to `http://localhost:3000`.
 
 ### API Endpoints
 
