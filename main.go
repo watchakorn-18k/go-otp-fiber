@@ -2,8 +2,8 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"go-opt-fiber/domain"
-	"go-opt-fiber/entities"
 	"image/png"
 	"log"
 	"time"
@@ -27,14 +27,18 @@ func main() {
 		log.Fatal(err)
 	}
 	userCollection = collDB
-	app.Get("/generate_link/:username", generateLinkHandler)
+
+	// เสิร์ฟไฟล์ static จากโฟลเดอร์ public
+	app.Static("/", "./public")
+
+	app.Post("/generate_link", generateLinkHandler)
 	app.Post("/verify_otp", verifyOTPHandler)
 
 	log.Fatal(app.Listen(":3000"))
 }
 
 func generateLinkHandler(c *fiber.Ctx) error {
-	username := c.Params("username")
+	username := c.FormValue("username")
 	expireTime := uint(30)
 
 	key, err := totp.Generate(totp.GenerateOpts{
@@ -44,9 +48,7 @@ func generateLinkHandler(c *fiber.Ctx) error {
 	})
 
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Error generating key",
-		})
+		return c.Status(fiber.StatusInternalServerError).SendString("Error generating key")
 	}
 
 	var buf bytes.Buffer
@@ -54,49 +56,31 @@ func generateLinkHandler(c *fiber.Ctx) error {
 	png.Encode(&buf, img)
 
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Error generating key",
-		})
+		return c.Status(fiber.StatusInternalServerError).SendString("Error generating key")
 	}
 
 	err = domain.SaveOrUpdateUser(username, key.Secret(), key.URL(), buf.Bytes(), userCollection)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Error saving key",
-		})
+		return c.Status(fiber.StatusInternalServerError).SendString("Error saving key")
 	}
 
-	return c.JSON(fiber.Map{
-		"secret": key.Secret(),
-		"url":    key.URL(),
-		"qrcode": buf.Bytes(),
-	})
+	return c.Status(fiber.StatusOK).SendString("<img src='data:image/png;base64," + encodeImageToBase64(buf.Bytes()) + "' alt='QR Code'>")
 }
 
 func verifyOTPHandler(c *fiber.Ctx) error {
-	var req entities.VerifyRequest
-	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Invalid request body",
-		})
-	}
+	username := c.FormValue("username")
+	otpCode := c.FormValue("otp")
 
-	user, err := domain.FindUserByUsername(req.Username, userCollection)
+	user, err := domain.FindUserByUsername(username, userCollection)
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"message": "User not found",
-		})
+		return c.Status(fiber.StatusNotFound).SendString("<p style='color: red;'>User not found</p>")
 	}
 
-	if isValidOTP(req.OTP, user.Secret) {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"message": "OTP is valid",
-		})
+	if isValidOTP(otpCode, user.Secret) {
+		return c.SendString("<p style='color: green;'>OTP is valid</p>")
 	}
 
-	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-		"message": "Invalid OTP",
-	})
+	return c.SendString("<p style='color: red;'>Invalid OTP</p>")
 }
 
 func isValidOTP(otpCode, secret string) bool {
@@ -113,4 +97,8 @@ func isValidOTP(otpCode, secret string) bool {
 		},
 	)
 	return valid
+}
+
+func encodeImageToBase64(image []byte) string {
+	return base64.StdEncoding.EncodeToString(image)
 }
