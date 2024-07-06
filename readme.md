@@ -1,5 +1,5 @@
 # Go OTP Fiber Application
-# Go OTP Fiber Application
+
 <div align="center">
 
 [api-version](https://github.com/watchakorn-18k/go-otp-fiber/tree/master)/[htmx-version](https://github.com/watchakorn-18k/go-otp-fiber/tree/show-html-version)
