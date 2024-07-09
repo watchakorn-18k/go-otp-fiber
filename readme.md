@@ -52,7 +52,7 @@ This project is a simple OTP (One Time Password) generation and verification ser
 
 #### Generate TOTP Key
 
-- **Endpoint:** `GET /generate_link/:username`
+- **Endpoint:** `GET /api/otp/generate_link/:username`
 - **Description:** Generates a TOTP key for the specified username and returns the secret, URL, and QR code image.
 - **Parameters:**
     - `username`: The username for which to generate the TOTP key.
@@ -69,7 +69,7 @@ This project is a simple OTP (One Time Password) generation and verification ser
 
 #### Verify TOTP Code
 
-- **Endpoint:** `POST /verify_otp`
+- **Endpoint:** `POST /api/otp/verify_otp`
 - **Description:** Verifies the TOTP code provided by the user.
 - **Request Body:**
 
@@ -86,7 +86,7 @@ This project is a simple OTP (One Time Password) generation and verification ser
 
         ```json
         {
-            "message": "OTP is valid"
+            "message": "valid OTP"
         }
         ```
 
@@ -94,37 +94,9 @@ This project is a simple OTP (One Time Password) generation and verification ser
 
         ```json
         {
-            "message": "Invalid OTP"
+            "message": "invalid OTP"
         }
         ```
-
-### Project Structure
-
-- `main.go`: Entry point of the application.
-- `domain`: Package containing database connection and operations.
-- `entities`: Package containing request and response structures.
-
-### Explanation for Developers
-
-#### Main Application (`main.go`)
-
-- Sets up the Fiber application with logging middleware.
-- Connects to the MongoDB database.
-- Defines the API endpoints and their handlers.
-
-#### Generate Link Handler (`generateLinkHandler`)
-
-- Generates a TOTP key for the specified username.
-- Encodes the QR code image to PNG format.
-- Saves the user's TOTP key and QR code image in the database.
-- Returns the secret, URL, and QR code image.
-
-#### Verify OTP Handler (`verifyOTPHandler`)
-
-- Parses the request body to get the username and OTP code.
-- Fetches the user's TOTP key from the database.
-- Verifies the provided OTP code using the TOTP key.
-- Returns the verification result.
 
 ### Dependencies
 

@@ -9,5 +9,10 @@ type User struct {
 	Username string `bson:"username"`
 	Secret   string `bson:"secret"`
 	URL      string `bson:"url"`
-	QRCode   string `bson:"qrcode"`
+}
+
+type OTP struct {
+	Secret string `json:"secret"`
+	URL    string `json:"url"`
+	QRCode string `json:"qrcode"`
 }
